@@ -1,24 +1,55 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { Stack } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
-import 'react-native-reanimated';
+import { Stack } from "expo-router";
+import { StatusBar } from "expo-status-bar";
+import * as SplashScreen from "expo-splash-screen";
+import { useEffect } from "react";
+import "../global.css";
+import { DocumentsProvider } from "../src/contexts/DocumentsContext";
+import { SettingsProvider } from "../src/contexts/SettingsContext";
+import { C, FONT } from "../src/lib/theme";
 
-import { useColorScheme } from '@/hooks/use-color-scheme';
-
-export const unstable_settings = {
-  anchor: '(tabs)',
-};
+SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
+  useEffect(() => {
+    SplashScreen.hideAsync();
+  }, []);
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
-      </Stack>
-      <StatusBar style="auto" />
-    </ThemeProvider>
+    <DocumentsProvider>
+      <SettingsProvider>
+        <StatusBar style="dark" backgroundColor={C.bg} />
+        <Stack
+          screenOptions={{
+            headerStyle: { backgroundColor: C.bg },
+            headerTintColor: C.text,
+            headerTitleStyle: {
+              fontWeight: FONT.bold,
+              color: C.text,
+              fontSize: 17,
+            },
+            headerShadowVisible: false,
+            headerBackTitle: "Back",
+            contentStyle: { backgroundColor: C.bg },
+          }}
+        >
+          <Stack.Screen name="index" options={{ headerShown: false }} />
+          <Stack.Screen
+            name="scan"
+            options={{
+              title: "Scan Document",
+              presentation: "modal",
+            }}
+          />
+          <Stack.Screen
+            name="document/[id]"
+            options={{ title: "Document", headerShown: true }}
+          />
+          <Stack.Screen
+            name="settings"
+            options={{ title: "Settings", headerShown: true }}
+          />
+        </Stack>
+      </SettingsProvider>
+    </DocumentsProvider>
   );
 }
