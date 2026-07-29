@@ -21,6 +21,7 @@ import { useDocuments } from "../../src/contexts/DocumentsContext";
 import { C, FONT, R, S, SIZE, TOUCH } from "../../src/lib/theme";
 import { exportToPdf, exportPageAsImage } from "../../src/services/pdf";
 import { deleteFile } from "../../src/services/storage";
+import ImagePreview from "../../src/components/ImagePreview";
 import type { DocumentWithPages } from "../../src/db/schema";
 
 export default function DocumentDetailScreen() {
@@ -32,6 +33,7 @@ export default function DocumentDetailScreen() {
   const [editing, setEditing] = useState(false);
   const [name, setName] = useState("");
   const [loading, setLoading] = useState(true);
+  const [previewUri, setPreviewUri] = useState<string | null>(null);
 
   useEffect(() => {
     loadDocument();
@@ -192,13 +194,17 @@ export default function DocumentDetailScreen() {
               </TouchableOpacity>
             </View>
 
-            <View style={styles.imageWrapper}>
+            <TouchableOpacity
+              style={styles.imageWrapper}
+              activeOpacity={0.95}
+              onPress={() => setPreviewUri(page.image_uri)}
+            >
               <Image
                 source={{ uri: page.image_uri }}
                 style={styles.pageImage}
                 resizeMode="contain"
               />
-            </View>
+            </TouchableOpacity>
           </View>
         ))}
       </ScrollView>
@@ -243,6 +249,12 @@ export default function DocumentDetailScreen() {
           <Text style={[styles.toolbarLabel, { color: C.error }]}>Delete</Text>
         </TouchableOpacity>
       </View>
+
+      <ImagePreview
+        uri={previewUri ?? ""}
+        visible={previewUri !== null}
+        onClose={() => setPreviewUri(null)}
+      />
     </View>
   );
 }
